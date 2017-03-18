@@ -9,13 +9,13 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class PostController {
-    public static String url = "http://192.168.1.198:8085/jsonlogin";
+    public static String url = "http://192.168.1.125:8089/jsonlogin";
     private static final MediaType JSON
             = MediaType.parse("application/json; charset=utf-8");
 
     private OkHttpClient client = new OkHttpClient();
 
-    String post(String url, String json) throws IOException {
+    public String post(String url, String json) throws IOException {
         RequestBody body = RequestBody.create(JSON, json);
         Request request = new Request.Builder()
                 .url(url)
