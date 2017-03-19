@@ -1,8 +1,10 @@
 package com.grydzor.androidcrm02;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -12,9 +14,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.grydzor.androidcrm02.controller.PostController;
+import com.grydzor.androidcrm02.form.LoginData;
+import com.grydzor.androidcrm02.settings.Settings;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText password;
     private TextView alert;
     private Button signIn;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +45,9 @@ public class MainActivity extends AppCompatActivity {
         password = (EditText) findViewById(R.id.password_login);
         alert = (TextView) findViewById(R.id.alert_login);
         signIn = (Button) findViewById(R.id.sign_in);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -56,23 +65,29 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            return true;
+            Intent intent = new Intent(MainActivity.this, PrefActivity.class);
+            startActivity(intent);
         }
 
         return super.onOptionsItemSelected(item);
     }
 
     public void signIn(View view){
-        if ((email == null)||(password == null)){
+        if (email.getText().toString().equals("")
+                || password.getText().toString().equals("")){
             alert.setVisibility(View.VISIBLE);
             alert.setText("Please fill in the fields!");
             return;
         }
         UserLoginTask loginTask = new UserLoginTask(email.getText().toString(), password.getText().toString());
         loginTask.execute();
-
-
     }
+
+    public void signUp(View view){
+        Intent intent = new Intent(MainActivity.this, RegistrationActivity.class);
+        startActivity(intent);
+    }
+
 
     private class UserLoginTask extends AsyncTask<Void, Void, String> {
 
@@ -88,21 +103,19 @@ public class MainActivity extends AppCompatActivity {
         protected void onPreExecute(){
             alert.setVisibility(View.INVISIBLE);
             alert.setText("");
+            progressBar.setVisibility(View.VISIBLE);
         }
 
         @Override
         protected String doInBackground(Void... params) {
-            JSONObject jsonObject = new JSONObject();
+            Gson gson = new Gson();
             PostController controller = new PostController();
             String request = null;
 
-            try {
-                jsonObject.accumulate("email", mEmail);
-                jsonObject.accumulate("password", mPassword);
-            } catch (JSONException e) {e.printStackTrace();}
+            LoginData data = new LoginData(mEmail, mPassword);
 
             try {
-                request = controller.post(PostController.url,jsonObject.toString());
+                request = controller.post(Settings.fullUrl + "jsonlogin", gson.toJson(data));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -111,7 +124,22 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String str){
-            JSONObject json = new JSONObject();
+            progressBar.setVisibility(View.INVISIBLE);
+            if(str == null){
+                alert.setVisibility(View.VISIBLE);
+                alert.setText("Cannot conect to server!");
+                return;
+            }
+
+            JSONObject json = null;
+            try {
+                json = new JSONObject(str);
+            } catch (JSONException e) {
+                e.printStackTrace();
+                alert.setVisibility(View.VISIBLE);
+                alert.setText("Server Error");
+                return;
+            }
             boolean b = false;
             try {
                 b = json.getBoolean("answer");

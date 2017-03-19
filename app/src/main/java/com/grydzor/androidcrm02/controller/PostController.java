@@ -9,7 +9,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class PostController {
-    public static String url = "http://192.168.1.125:8089/jsonlogin";
+
     private static final MediaType JSON
             = MediaType.parse("application/json; charset=utf-8");
 

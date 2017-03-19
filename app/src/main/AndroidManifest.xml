@@ -21,7 +21,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".BackOfficeActivity"></activity>
+        <activity android:name=".BackOfficeActivity"
+            android:label="Back Office"/>
+        <activity android:name=".PrefActivity"
+            android:label="Settings"/>
+        <activity android:name=".RegistrationActivity"
+            android:label="Registration"/>
     </application>
 
 </manifest>

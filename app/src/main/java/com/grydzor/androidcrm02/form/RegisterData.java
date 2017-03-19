@@ -10,6 +10,16 @@ public class RegisterData {
     private String phone;
     private String address;
 
+    public RegisterData(String email, String password, String confirmPassword, String name, String surname, String phone, String address) {
+        this.email = email;
+        this.password = password;
+        this.confirmPassword = confirmPassword;
+        this.name = name;
+        this.surname = surname;
+        this.phone = phone;
+        this.address = address;
+    }
+
     public String getEmail() {
         return email;
     }
